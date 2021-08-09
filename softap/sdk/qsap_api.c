@@ -1195,7 +1195,7 @@ static void qsap_read_wps_state(s8 *presp, u32 *plen)
         status = (atoi(pstate) == WPS_STATE_ENABLE) ? ENABLE : DISABLE;
     }
 
-    *plen = qsap_scnprintf(presp, *plen, "success %s=%ld", cmd_list[eCMD_WPS_STATE].name, status);
+    *plen = qsap_scnprintf(presp, *plen, "success %s=%d", cmd_list[eCMD_WPS_STATE].name, status);
 
     return;
 }
@@ -1745,7 +1745,7 @@ void qsap_read_autoshutoff(s8 *presp, u32 *plen)
         time = time / 60; /** Convert seconds to minutes */
     }
 
-    *plen = qsap_scnprintf(presp, *plen, "success %s=%ld", cmd_list[eCMD_AP_AUTOSHUTOFF].name, time);
+    *plen = qsap_scnprintf(presp, *plen, "success %s=%d", cmd_list[eCMD_AP_AUTOSHUTOFF].name, time);
 
     return;
 }
@@ -2477,7 +2477,7 @@ static int qsap_set_channel(s32 channel, s8 *tbuf, u32 *tlen)
     }
 
 end:
-    qsap_scnprintf(schan, sizeof(schan), "%ld", channel);
+    qsap_scnprintf(schan, sizeof(schan), "%d", channel);
 
     return qsap_write_cfg(pcfg, &cmd_list[eCMD_CHAN], schan, tbuf, tlen, HOSTAPD_CONF_QCOM_FILE);
 }
@@ -2552,7 +2552,7 @@ static int qsap_set_data_rate(s32 drate_idx, s8 *presp, u32 *plen)
         goto end;
     }
 
-    qsap_scnprintf(sconf, sizeof(sconf), "%ld", drate_idx);
+    qsap_scnprintf(sconf, sizeof(sconf), "%d", drate_idx);
 
     /** Update the rate index in the configuration */
     return qsap_write_cfg(fIni, &qsap_str[STR_DATA_RATE_IN_INI], sconf, presp, plen, INI_CONF_FILE);
@@ -2657,7 +2657,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             /** Write back the integer value. This is to avoid values like 01, 001, 0001
              * being written to the configuration.
              */
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
             qsap_set_security_mode(pconffile, value, presp, plen);
             return;
 
@@ -2669,7 +2669,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             /** Write back the integer value. This is to avoid values like 01, 001, 0001
               * being written to the configuration
               */
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
 
             if(ACL_ALLOW_LIST == value) {
                 value = ENABLE;
@@ -2760,7 +2760,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             /** Write back the integer value. This is to avoid values like 01, 001, 0001
               * being written to the configuration
               */
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
             break;
         case eCMD_PASSPHRASE:
             value = strlen(pVal);
@@ -2784,7 +2784,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             /** Write back the integer value. This is to avoid values like 01, 001, 0001
               * being written to the configuration
               */
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
             break;
 
         case eCMD_DTIM_PERIOD:
@@ -2794,7 +2794,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             /** Write back the integer value. This is to avoid values like 01, 001, 0001
               * being written to the configuration
               */
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
             break;
 
         case eCMD_HW_MODE:
@@ -2823,7 +2823,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             /** Write back the integer value. This is to avoid values like 01, 001, 0001
               * being written to the configuration
               */
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
             break;
 
         case eCMD_DEFAULT_KEY:
@@ -2833,7 +2833,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
              /** Write back the integer value. This is to avoid values like 01, 001, 0001
                * being written to the configuration
                */
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
 
             qsap_write_cfg(pcfg, &cmd_list[cNum], pVal, presp, plen, ini);
 
@@ -3014,7 +3014,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             if(TRUE != IS_VALID_WMM_STATE(value))
                 goto error;
 
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
             break;
         case eCMD_WPS_STATE:
             value = atoi(pVal);
@@ -3023,7 +3023,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             /** Write back the integer value. This is to avoid values like 01, 001, 0001
               * being written to the configuration
               */
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
             qsap_update_wps_config(pVal, presp, plen);
             return;
 
@@ -3035,7 +3035,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             value = atoi(pVal);
             if(TRUE != IS_VALID_PROTECTION(value))
                 goto error;
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
             sNum = STR_PROT_FLAG_IN_INI;
             ini = INI_CONF_FILE;
             break;
@@ -3044,7 +3044,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             value = atoi(pVal);
             if(TRUE != IS_VALID_FRAG_THRESHOLD(value))
                 goto error;
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
             break;
 
         case eCMD_REGULATORY_DOMAIN:
@@ -3053,14 +3053,14 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             if(TRUE != IS_VALID_802DOT11D_STATE(value))
                 goto error;
 
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
             break;
 
         case eCMD_RTS_THRESHOLD:
             value = atoi(pVal);
             if(TRUE != IS_VALID_RTS_THRESHOLD(value))
                 goto error;
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
             break;
 
         case eCMD_GTK_TIMEOUT:
@@ -3074,7 +3074,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             value = atoi(pVal);
             if(TRUE != IS_VALID_TX_POWER(value))
                 goto error;
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
             sNum = STR_TX_POWER_IN_INI;
             ini = INI_CONF_FILE;
             break;
@@ -3108,7 +3108,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
                 goto error;
             /* copy a larger value back to pVal. Please pay special care
              * in caller to make sure that the buffer has sufficient size. */
-            qsap_scnprintf(pVal, MAX_INT_STR, "%ld", value*60);
+            qsap_scnprintf(pVal, MAX_INT_STR, "%d", value*60);
             sNum = STR_AP_AUTOSHUTOFF;
             ini = INI_CONF_FILE;
             break;
@@ -3118,7 +3118,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             if(TRUE != IS_VALID_ENERGY_DETECT_TH(value))
                 goto error;
 
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
             sNum = STR_AP_ENERGY_DETECT_TH;
             ini = INI_CONF_FILE;
             break;
@@ -3128,7 +3128,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             if(TRUE != IS_VALID_DFS_STATE(value))
                 goto error;
 
-            qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
+            qsap_scnprintf(pVal, strlen(pVal)+1, "%d", value);
             break;
 
         case eCMD_SET_CHANNEL_RANGE:
