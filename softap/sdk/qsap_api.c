@@ -71,6 +71,8 @@
 
 #define SKIP_BLANK_SPACE(x) {while(*x != '\0') { if((*x == ' ') || (*x == '\t')) x++; else break; }}
 
+#define UNUSED __attribute__ ((unused))
+
 /** If this variable is enabled, the soft AP is reloaded, after the commit
   * command is received */
 static volatile int gIniUpdated = 0;
@@ -622,7 +624,7 @@ static void qsap_set_security_mode(s8 *pfile, u32 sec_mode, s8 *presp, u32 *plen
     }
     else {
         /** WPA, WPA2 and mixed-mode security */
-        u16 wpa_val;
+        u16 wpa_val = 0;
         u32 tmp = *plen;
 
         wep = DISABLE;
@@ -1509,7 +1511,7 @@ error:
     return eERR_SET_CHAN_RANGE;
 }
 
-int qsap_read_channel(s8 *pfile, struct Command *pcmd, s8 *presp, u32 *plen, s8 *pvar)
+int qsap_read_channel(UNUSED s8 *pfile, struct Command *pcmd, s8 *presp, u32 *plen, UNUSED s8 *pvar)
 {
     s32  chan;
     u32  len = *plen;
@@ -1524,9 +1526,8 @@ int qsap_read_channel(s8 *pfile, struct Command *pcmd, s8 *presp, u32 *plen, s8 
     return eSUCCESS;
 }
 
-int qsap_read_auto_channel(struct Command *pcmd, s8 *presp, u32 *plen)
+int qsap_read_auto_channel(UNUSED struct Command *pcmd, s8 *presp, u32 *plen)
 {
-    s8   *pval, *pautoval;
     s32  pautochan;
     u32  len = *plen;
 
@@ -1558,7 +1559,7 @@ static int qsap_mac_to_macstr(s8 *pmac, u32 slen, s8 *pmstr, u32 *plen)
     }
 
     if(totlen > 0) {
-        *pmstr--;
+        pmstr--;
         totlen--;
     }
     *pmstr = '\0';
@@ -1663,7 +1664,7 @@ static void qsap_read_wep_key(s8 *pfile, struct Command *pcmd, s8 *presp, u32 *p
              pkey++;
              pwep++;
         }
-        *pkey--;
+        pkey--;
         *pkey = '\0';
         *plen -= 2;
     }
