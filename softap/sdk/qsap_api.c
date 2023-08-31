@@ -348,7 +348,7 @@ static s32 qsap_write_cfg(s8 *pfile, struct Command * pcmd, s8 *pVal, s8 *presp,
     s8 buf[MAX_CONF_LINE_LEN+1];
     s16 len, result = FALSE;
 
-    ALOGD("cmd=%s, Val:%s, INI:%ld \n", pcmd->name, pVal, inifile);
+    ALOGD("cmd=%s, Val:%s, INI:%d \n", pcmd->name, pVal, (int)inifile);
 
     /** Open the configuration file */
     fcfg = fopen(pfile, "r");
@@ -639,6 +639,10 @@ static void qsap_set_security_mode(s8 *pfile, u32 sec_mode, s8 *presp, u32 *plen
         else if(sec_mode == SEC_MODE_WPA_WPA2_PSK) {
             wpa_val = WPA_WPA2_IN_CONF_FILE;
             rsn_status = ENABLE;
+        }
+
+        else {
+            goto end;
         }
 
         qsap_scnprintf(sec, sizeof(sec), "%u", wpa_val);
@@ -1037,7 +1041,7 @@ static void qsap_get_mac_list(s8 *fconfile, esap_cmd_t cNum, s8 *presp, u32 *ple
     FILE *fp;
     u32 len_remain;
     s8 *pfile, *pOut;
-    esap_cmd_t sNum;
+    esap_str_t sNum;
     int cnt = 0;
 
     /** Identify the allow or deny file */
@@ -1241,7 +1245,7 @@ int qsap_get_operating_channel(s32 *pchan)
 
     ALOGE("Recv len :%d \n", wrq.u.data.length);
     *pchan = *(int *)(&wrq.u.name[0]);
-    ALOGE("Operating channel :%ld \n", *pchan);
+    ALOGE("Operating channel :%d \n", (int)*pchan);
     close(sock);
     return eSUCCESS;
 
@@ -1263,7 +1267,6 @@ int qsap_get_sap_auto_channel_selection(s32 *pautochan)
     s8 *pif;
     int ret;
     sap_auto_channel_info sap_autochan_info;
-    s32 *pchan;
 
     if(ENABLE != is_softap_enabled()) {
         ALOGE("%s :is_softap_enabled() goto error \n", __func__);
@@ -1305,7 +1308,7 @@ int qsap_get_sap_auto_channel_selection(s32 *pautochan)
 
     ALOGD("Recv len :%d \n", wrq.u.data.length);
     *pautochan = *(int *)(&wrq.u.name[0]);
-    ALOGD("Sap auto channel selection pautochan=%ld \n", *pautochan);
+    ALOGD("Sap auto channel selection pautochan=%d \n", (int)*pautochan);
     close(sock);
     return eSUCCESS;
 
@@ -1428,7 +1431,7 @@ int qsap_set_channel_range(s8 *buf)
     u32 len = MAX_CONF_LINE_LEN;
     s8 *pif;
     s8 *temp;
-    int ret, i;
+    int ret;
     sap_channel_info sap_chan_range;
     sta_channel_info sta_chan_range;
 
@@ -1508,7 +1511,6 @@ error:
 
 int qsap_read_channel(s8 *pfile, struct Command *pcmd, s8 *presp, u32 *plen, s8 *pvar)
 {
-    s8   *pval;
     s32  chan;
     u32  len = *plen;
 
@@ -1527,7 +1529,6 @@ int qsap_read_auto_channel(struct Command *pcmd, s8 *presp, u32 *plen)
     s8   *pval, *pautoval;
     s32  pautochan;
     u32  len = *plen;
-    int autochan;
 
     ALOGE("%s :\n", __func__);
 
@@ -1677,8 +1678,7 @@ void qsap_read_ap_stats(s8 *presp, u32 *plen)
     s8 interface[MAX_CONF_LINE_LEN];
     u32 len = MAX_CONF_LINE_LEN;
     s8 *pif;
-    s8 *pbuf, *pout;
-    u32 tlen;
+    s8 *pbuf;
 
     if(ENABLE != is_softap_enabled()) {
         *plen = qsap_scnprintf(presp, *plen, "%s", ERR_SOFTAP_NOT_STARTED);
@@ -1770,7 +1770,6 @@ static void qsap_get_from_config(esap_cmd_t cNum, s8 *presp, u32 *plen)
 {
     u32 len;
     int status;
-    s8 * pval;
 
     switch(cNum) {
         case eCMD_ENABLE_SOFTAP:
@@ -2486,11 +2485,7 @@ end:
 static int qsap_set_operating_mode(s32 mode, s8 *pmode, int pmode_len, s8 *tbuf, u32 *tlen)
 {
     u32 ulen;
-    s8 *pcfgval;
-    s32 channel;
-    s8 sconf[MAX_INT_STR+1];
     s8 *pcfg = pconffile;
-    s32 rate_idx;
     s8  ieee11n_enable[] = "1";
     s8  ieee11n_disable[] = "0";
 
@@ -2893,7 +2888,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
 
         case eCMD_RESET_AP:
             value = atoi(pVal);
-            ALOGE("Reset :%ld \n", value);
+            ALOGE("Reset :%d \n", (int)value);
             if(SAP_RESET_BSS == value) {
                 status = wifi_qsap_stop_softap();
                 if(status == eSUCCESS) {
@@ -3041,7 +3036,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             if(TRUE != IS_VALID_PROTECTION(value))
                 goto error;
             qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
-            cNum = STR_PROT_FLAG_IN_INI;
+            sNum = STR_PROT_FLAG_IN_INI;
             ini = INI_CONF_FILE;
             break;
 
@@ -3080,7 +3075,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             if(TRUE != IS_VALID_TX_POWER(value))
                 goto error;
             qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
-            cNum = STR_TX_POWER_IN_INI;
+            sNum = STR_TX_POWER_IN_INI;
             ini = INI_CONF_FILE;
             break;
 
@@ -3114,7 +3109,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
             /* copy a larger value back to pVal. Please pay special care
              * in caller to make sure that the buffer has sufficient size. */
             qsap_scnprintf(pVal, MAX_INT_STR, "%ld", value*60);
-            cNum = STR_AP_AUTOSHUTOFF;
+            sNum = STR_AP_AUTOSHUTOFF;
             ini = INI_CONF_FILE;
             break;
 
@@ -3124,7 +3119,7 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
                 goto error;
 
             qsap_scnprintf(pVal, strlen(pVal)+1, "%ld", value);
-            cNum = STR_AP_ENERGY_DETECT_TH;
+            sNum = STR_AP_ENERGY_DETECT_TH;
             ini = INI_CONF_FILE;
             break;
 
@@ -3152,8 +3147,8 @@ static void qsap_handle_set_request(s8 *pcmd, s8 *presp, u32 *plen)
     }
 
     if(ini == INI_CONF_FILE) {
-        ALOGD("WRITE TO INI FILE :%s\n", qsap_str[cNum].name);
-        qsap_write_cfg(fIni, &qsap_str[cNum], pVal, presp, plen, ini);
+        ALOGD("WRITE TO INI FILE :%s\n", qsap_str[sNum].name);
+        qsap_write_cfg(fIni, &qsap_str[sNum], pVal, presp, plen, ini);
     }
     else {
         qsap_write_cfg(pcfg, &cmd_list[cNum], pVal, presp, plen, ini);
@@ -3181,7 +3176,7 @@ error:
 */
 void qsap_hostd_exec_cmd(s8 *pcmd, s8 *presp, u32 *plen)
 {
-    ALOGD("CMD INPUT  [%s][%lu]\n", pcmd, *plen);
+    ALOGD("CMD INPUT  [%s][%u]\n", pcmd, *plen);
     /* Skip any blank spaces */
     SKIP_BLANK_SPACE(pcmd);
 
@@ -3213,7 +3208,7 @@ void qsap_hostd_exec_cmd(s8 *pcmd, s8 *presp, u32 *plen)
         *plen = qsap_scnprintf(presp, *plen, "%s", ERR_INVALIDREQ);
     }
 
-    ALOGD("CMD OUTPUT [%s]\nlen :%lu\n\n", presp, *plen);
+    ALOGD("CMD OUTPUT [%s]\nlen :%u\n\n", presp, *plen);
 
     return;
 }
